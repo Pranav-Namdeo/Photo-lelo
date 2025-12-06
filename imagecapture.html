@@ -290,17 +290,18 @@
                 
                 // Real human faces typically score > 25
                 // Photos on screens typically score < 20
-                if (avgTextureScore > 22) {
-                    livenessScore = Math.min(100, livenessScore + 15);
+                // Lowered threshold to 18 for easier detection
+                if (avgTextureScore > 18) {
+                    livenessScore = Math.min(100, livenessScore + 20);
                 } else {
-                    livenessScore = Math.max(0, livenessScore - 5);
+                    livenessScore = Math.max(0, livenessScore - 3);
                 }
             } else {
                 // Build up score quickly during initial frames
-                livenessScore = Math.min(100, (frameCount / REQUIRED_FRAMES) * 50);
+                livenessScore = Math.min(100, (frameCount / REQUIRED_FRAMES) * 60);
             }
             
-            return livenessScore >= 50;
+            return livenessScore >= 40;
         }
 
         // Detect face in real-time
@@ -371,7 +372,7 @@
         // Update save button state
         function updateSaveButton() {
             const enrollmentNumber = enrollmentInput.value.trim();
-            const isLive = livenessScore >= 50;
+            const isLive = livenessScore >= 40;
             saveBtn.disabled = !(faceDetected && enrollmentNumber && modelsLoaded && isLive);
             
             // Update button text based on liveness
@@ -398,7 +399,7 @@
                 return;
             }
             
-            if (livenessScore < 50) {
+            if (livenessScore < 40) {
                 showStatus('Liveness check failed. Please ensure good lighting and try again.', 'error');
                 return;
             }

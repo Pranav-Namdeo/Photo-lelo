@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .login-container h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .login-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .error {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .manager-container {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: #333;
+        }
+        
+        .logout-btn {
+            padding: 10px 20px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .logout-btn:hover {
+            background: #b71c1c;
+        }
+        
+        .stats {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stats h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .stat-item {
+            display: inline-block;
+            margin-right: 30px;
+            font-size: 18px;
+            color: #555;
+        }
+        
+        .stat-item strong {
+            color: #667eea;
+        }
+        
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .user-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .user-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 4px solid #667eea;
+        }
+        
+        .user-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .user-card .username {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .user-card .password {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .no-users {
+            text-align: center;
+            color: white;
+            font-size: 20px;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div class="login-container" id="loginContainer">
+        <h1>Photo Manager Login</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+            <div class="error" id="loginError">Incorrect password!</div>
+        </form>
+    </div>
+
+    <!-- Manager Panel -->
+    <div class="manager-container" id="managerContainer">
+        <div class="header">
+            <h1>Photo Manager</h1>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+        
+        <div class="stats">
+            <h2>Statistics</h2>
+            <div class="stat-item">
+                <strong id="totalUsers">0</strong> Total Users
+            </div>
+            <div class="stat-item">
+                <strong id="totalPhotos">0</strong> Total Photos
+            </div>
+        </div>
+        
+        <div class="users-grid" id="usersGrid">
+            <!-- User cards will be inserted here -->
+        </div>
+        
+        <div class="no-users" id="noUsers" style="display: none;">
+            No photos captured yet. Use the face capture system to add users.
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = 'pranav';
+        const DEFAULT_USER_PASSWORD = 'pranav';
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('managerContainer').style.display = 'block';
+                loadUsers();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('loginError').style.display = 'none';
+                }, 3000);
+            }
+        });
+
+        // Logout functionality
+        function logout() {
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('managerContainer').style.display = 'none';
+            document.getElementById('password').value = '';
+        }
+
+        // Load users from server
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users');
+                const users = await response.json();
+                
+                displayUsers(users);
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Display users in grid
+        function displayUsers(users) {
+            const usersGrid = document.getElementById('usersGrid');
+            const noUsers = document.getElementById('noUsers');
+            
+            if (users.length === 0) {
+                usersGrid.style.display = 'none';
+                noUsers.style.display = 'block';
+                return;
+            }
+            
+            usersGrid.style.display = 'grid';
+            noUsers.style.display = 'none';
+            
+            // Update statistics
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('totalPhotos').textContent = users.length;
+            
+            // Clear existing cards
+            usersGrid.innerHTML = '';
+            
+            // Create user cards
+            users.forEach(user => {
+                const card = document.createElement('div');
+                card.className = 'user-card';
+                card.innerHTML = `
+                    <img src="/Image save/${user.filename}" alt="${user.username}">
+                    <div class="username">ID: ${user.username}</div>
+                    <h3>Enrollment Number</h3>
+                    <div class="password">Password: ${DEFAULT_USER_PASSWORD}</div>
+                `;
+                usersGrid.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
